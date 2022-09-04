@@ -1,0 +1,27 @@
+[package]
+name = "ya-market-resolver-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.ya-market-resolver]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "ldap_parser"
+path = "fuzz_targets/ldap_parser.rs"
+test = false
+doc = false
