@@ -2,6 +2,5 @@ project: yagna
 target: ldap-parser
 
 cmds:
-  - cmd: /ldap_parser
-  - cmd: /ldap_parser_no_inst @@
+  - cmd: /ldap_parser @@
     libfuzzer: false

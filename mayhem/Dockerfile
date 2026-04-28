@@ -1,22 +1,15 @@
 # Build Stage
-FROM ghcr.io/evanrichter/cargo-fuzz:latest as builder
+FROM rustlang/rust:nightly AS builder
+
+RUN cargo install cargo-fuzz
 
 ## Add source code to the build stage.
 ADD . /src
 WORKDIR /src
 
-RUN echo building instrumented harnesses && \
-    bash -c "pushd core/market/resolver/fuzz && cargo +nightly -Z sparse-registry fuzz build && popd" && \
-    mv core/market/resolver/fuzz/target/x86_64-unknown-linux-gnu/release/ldap_parser /ldap_parser && \
-    echo done
-
-RUN echo building non-instrumented harnesses && \
-    export RUSTFLAGS="--cfg fuzzing -Clink-dead-code -Cdebug-assertions -C codegen-units=1" && \
-    bash -c "pushd core/market/resolver/fuzz && cargo +nightly -Z sparse-registry build --release && popd" && \
-    mv core/market/resolver/fuzz/target/release/ldap_parser /ldap_parser_no_inst && \
-    echo done
+RUN cd core/market/resolver/fuzz &&     cargo build --release &&     mv target/release/ldap_parser /ldap_parser
 
 # Package Stage
-FROM rustlang/rust:nightly
+FROM ubuntu:20.04
 
-COPY --from=builder /ldap_parser /ldap_parser_no_inst /
+COPY --from=builder /ldap_parser /
